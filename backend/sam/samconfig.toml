@@ -1,0 +1,15 @@
+version = 0.1
+
+[default.build.parameters]
+cached = true
+parallel = true
+
+[default.deploy.parameters]
+stack_name = "led-iot-backend"
+region = "ap-northeast-1"
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true
+resolve_s3 = true
+# IotDataEndpoint は terraform output -raw iot_data_endpoint の値を
+# 以下のように毎回 --parameter-overrides で渡すか、ここに固定値を追記してください。
+# parameter_overrides = "ProjectName=led-iot Environment=dev ThingName=led-device-01 IotDataEndpoint=xxxxxxxx.iot.ap-northeast-1.amazonaws.com"

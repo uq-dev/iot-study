@@ -1,0 +1,104 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  led_iot backend - LED状態取得/更新Lambda関数とAPI Gateway(OpenAPI定義)を管理する。
+  APIキー・使用量プランはTerraform側で管理するため、本テンプレートでは作成しない。
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: led-iot
+  Environment:
+    Type: String
+    Default: dev
+    Description: "APIステージ名。Terraform側のvar.environmentと合わせること"
+  ThingName:
+    Type: String
+    Default: led-device-01
+    Description: "TerraformのAWS IoT Thing名と合わせること"
+  IotDataEndpoint:
+    Type: String
+    Description: "AWS IoT Coreデータプレーンエンドポイント。terraform output -raw iot_data_endpoint の値を渡す"
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Timeout: 10
+    MemorySize: 128
+    Environment:
+      Variables:
+        THING_NAME: !Ref ThingName
+        IOT_DATA_ENDPOINT: !Ref IotDataEndpoint
+
+Resources:
+  # --- API Gateway本体（ルーティング・統合定義はopenapi.yamlから読み込み） ---
+  LedApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub "${ProjectName}-api"
+      StageName: !Ref Environment
+      DefinitionBody:
+        Fn::Transform:
+          Name: AWS::Include
+          Parameters:
+            # openapi.yaml内の Fn::Sub(${GetLedStateFunction.Arn} 等) は
+            # このInclude展開後にCloudFormationが通常通り解決する
+            Location: openapi.yaml
+
+  # --- LED状態取得Lambda ---
+  GetLedStateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${ProjectName}-get-led-state"
+      CodeUri: ../lambda/get_led_state/
+      Handler: handler.handler
+      Policies:
+        - Statement:
+            - Sid: GetThingShadow
+              Effect: Allow
+              Action:
+                - iot:GetThingShadow
+              Resource: !Sub "arn:aws:iot:${AWS::Region}:${AWS::AccountId}:thing/${ThingName}"
+      # RestApiIdを明示することで、上のLedApi(OpenAPI定義済み)に対する
+      # Lambda呼び出し許可(AWS::Lambda::Permission)のみがSAMにより自動生成される
+      Events:
+        GetState:
+          Type: Api
+          Properties:
+            RestApiId: !Ref LedApi
+            Path: /led/state
+            Method: get
+
+  # --- LED状態更新Lambda ---
+  SetLedStateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${ProjectName}-set-led-state"
+      CodeUri: ../lambda/set_led_state/
+      Handler: handler.handler
+      Policies:
+        - Statement:
+            - Sid: UpdateThingShadow
+              Effect: Allow
+              Action:
+                - iot:UpdateThingShadow
+              Resource: !Sub "arn:aws:iot:${AWS::Region}:${AWS::AccountId}:thing/${ThingName}"
+      Events:
+        SetState:
+          Type: Api
+          Properties:
+            RestApiId: !Ref LedApi
+            Path: /led/state
+            Method: post
+
+Outputs:
+  ApiId:
+    Description: "REST API ID（TerraformがUsage Planを紐付ける際に data.aws_cloudformation_stack 経由で参照）"
+    Value: !Ref LedApi
+  ApiBaseUrl:
+    Description: "API GatewayのベースURL"
+    Value: !Sub "https://${LedApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}"
+  GetLedStateFunctionArn:
+    Value: !GetAtt GetLedStateFunction.Arn
+  SetLedStateFunctionArn:
+    Value: !GetAtt SetLedStateFunction.Arn

@@ -1,0 +1,22 @@
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
+crash.log
+
+# AWS SAM
+backend/sam/.aws-sam/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# フロントエンド（実際の接続情報を含むため）
+frontend/config.js
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db

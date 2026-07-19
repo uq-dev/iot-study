@@ -1,0 +1,70 @@
+openapi: "3.0.1"
+info:
+  title: led-iot-api
+  version: "1.0"
+
+# APIキー必須であることを示すセキュリティスキーム
+# （実際のAPIキー・使用量プランのリソース自体はTerraformで作成する）
+components:
+  securitySchemes:
+    api_key:
+      type: apiKey
+      name: x-api-key
+      in: header
+
+paths:
+  /led/state:
+    get:
+      summary: LED状態取得
+      security:
+        - api_key: []
+      responses:
+        "200":
+          description: 現在のLED状態
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  state:
+                    type: string
+                    enum: ["ON", "OFF"]
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        payloadFormatVersion: "1.0"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetLedStateFunction.Arn}/invocations"
+
+    post:
+      summary: LED状態更新
+      security:
+        - api_key: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: ["state"]
+              properties:
+                state:
+                  type: string
+                  enum: ["ON", "OFF"]
+      responses:
+        "200":
+          description: 更新後のLED状態
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  state:
+                    type: string
+                    enum: ["ON", "OFF"]
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        payloadFormatVersion: "1.0"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetLedStateFunction.Arn}/invocations"

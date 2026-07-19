@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LED IoT Control Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="panel">
+    <header class="panel__header">
+      <span class="panel__eyebrow">DEVICE CONTROL</span>
+      <h1 class="panel__title">LED-01</h1>
+    </header>
+
+    <section class="bulb-stage" aria-live="polite">
+      <div class="bulb" id="bulb" data-state="unknown">
+        <div class="bulb__core"></div>
+        <div class="bulb__glow"></div>
+      </div>
+      <p class="bulb__label" id="bulbLabel">状態を取得中…</p>
+    </section>
+
+    <button class="toggle-btn" id="toggleBtn" disabled>
+      <span id="toggleBtnLabel">LOADING</span>
+    </button>
+
+    <footer class="panel__footer">
+      <dl class="status-grid">
+        <div>
+          <dt>THING</dt>
+          <dd id="thingLabel">led-device-01</dd>
+        </div>
+        <div>
+          <dt>LAST SYNC</dt>
+          <dd id="lastSync">—</dd>
+        </div>
+      </dl>
+      <p class="error-message" id="errorMessage" role="alert"></p>
+    </footer>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
