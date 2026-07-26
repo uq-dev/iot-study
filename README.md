@@ -85,6 +85,7 @@ terraform output -raw iot_data_endpoint
 
 ```bash
 cd ../../backend/sam
+SET PYTHONUTF8=1
 sam build
 sam deploy --guided \
   --parameter-overrides \

@@ -45,12 +45,12 @@ Resources:
             # このInclude展開後にCloudFormationが通常通り解決する
             Location: openapi.yaml
 
-  # --- LED状態取得Lambda ---
-  GetLedStateFunction:
+  # --- 機器状態取得Lambda ---
+  GetApplianceStateFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub "${ProjectName}-get-led-state"
-      CodeUri: ../lambda/get_led_state/
+      FunctionName: !Sub "${ProjectName}-get-appliance-state"
+      CodeUri: ../lambda/get_appliance_state/
       Handler: handler.handler
       Policies:
         - Statement:
@@ -66,15 +66,15 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref LedApi
-            Path: /led/state
+            Path: /appliances/state
             Method: get
 
-  # --- LED状態更新Lambda ---
-  SetLedStateFunction:
+  # --- 機器状態更新Lambda ---
+  SetApplianceStateFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub "${ProjectName}-set-led-state"
-      CodeUri: ../lambda/set_led_state/
+      FunctionName: !Sub "${ProjectName}-set-appliance-state"
+      CodeUri: ../lambda/set_appliance_state/
       Handler: handler.handler
       Policies:
         - Statement:
@@ -88,7 +88,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref LedApi
-            Path: /led/state
+            Path: /appliances/state
             Method: post
 
 Outputs:
@@ -98,7 +98,8 @@ Outputs:
   ApiBaseUrl:
     Description: "API GatewayのベースURL"
     Value: !Sub "https://${LedApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}"
-  GetLedStateFunctionArn:
-    Value: !GetAtt GetLedStateFunction.Arn
-  SetLedStateFunctionArn:
-    Value: !GetAtt SetLedStateFunction.Arn
+  GetApplianceStateFunctionArn:
+    Value: !GetAtt GetApplianceStateFunction.Arn
+  SetApplianceStateFunctionArn:
+    Value: !GetAtt SetApplianceStateFunction.Arn
+

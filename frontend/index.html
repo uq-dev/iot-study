@@ -3,44 +3,106 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>LED IoT Control Panel</title>
+<title>Smart Home Control Panel</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <main class="panel">
-    <header class="panel__header">
-      <span class="panel__eyebrow">DEVICE CONTROL</span>
-      <h1 class="panel__title">LED-01</h1>
+  <div class="container">
+    <header class="app-header">
+      <span class="app-header__subtitle">AWS REMOTE CONTROLLER</span>
+      <h1 class="app-header__title">Smart Control Panel</h1>
     </header>
 
-    <section class="bulb-stage" aria-live="polite">
-      <div class="bulb" id="bulb" data-state="unknown">
-        <div class="bulb__core"></div>
-        <div class="bulb__glow"></div>
+    <main class="dashboard">
+      <!-- エアコンコントロールカード -->
+      <section class="card card--aircon" id="cardAircon" data-power="OFF" data-mode="COOL">
+        <div class="card__glow"></div>
+        <div class="card__header">
+          <div class="card__icon">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10a6 6 0 0 0-12 0v8a6 6 0 0 0 12 0v-8Z"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M20 12h2"/><path d="M2 12h2"/></svg>
+          </div>
+          <div class="card__title-group">
+            <h2 class="card__title">エアコン</h2>
+            <span class="card__subtitle" id="airconStatusText">電源 OFF</span>
+          </div>
+          <div class="loading-spinner" id="airconSpinner"></div>
+        </div>
+
+        <div class="card__body">
+          <!-- 温度表示エリア -->
+          <div class="temp-display">
+            <button class="temp-btn temp-btn--down" id="tempDownBtn" aria-label="温度を下げる">—</button>
+            <div class="temp-value-wrapper">
+              <span class="temp-value" id="tempValue">26</span>
+              <span class="temp-unit">°C</span>
+            </div>
+            <button class="temp-btn temp-btn--up" id="tempUpBtn" aria-label="温度を上げる">+</button>
+          </div>
+
+          <!-- モード選択セグメント -->
+          <div class="mode-selector">
+            <button class="mode-btn" data-mode="COOL" id="modeCoolBtn">冷房</button>
+            <button class="mode-btn" data-mode="HEAT" id="modeHeatBtn">暖房</button>
+            <button class="mode-btn" data-mode="DRY" id="modeDryBtn">除湿</button>
+            <button class="mode-btn" data-mode="FAN" id="modeFanBtn">送風</button>
+          </div>
+        </div>
+
+        <div class="card__footer">
+          <button class="power-btn" id="airconPowerBtn">
+            <span class="power-btn__icon">⏻</span>
+            <span class="power-btn__text" id="airconPowerBtnText">運転開始</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- シーリングライトコントロールカード -->
+      <section class="card card--light" id="cardLight" data-power="OFF" data-mode="FULL">
+        <div class="card__glow"></div>
+        <div class="card__header">
+          <div class="card__icon">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A5 5 0 0 0 8 8c0 1.3.5 2.6 1.5 3.5.8.8 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
+          </div>
+          <div class="card__title-group">
+            <h2 class="card__title">シーリングライト</h2>
+            <span class="card__subtitle" id="lightStatusText">電源 OFF</span>
+          </div>
+          <div class="loading-spinner" id="lightSpinner"></div>
+        </div>
+
+        <div class="card__body">
+          <!-- ライトモード選択 (Panasonic個別ボタン対応) -->
+          <div class="light-control-grid">
+            <button class="light-btn light-btn--full" id="lightFullBtn">全灯</button>
+            <button class="light-btn light-btn--warm" id="lightWarmBtn">調光 (温)</button>
+            <button class="light-btn light-btn--eco" id="lightEcoBtn">常夜灯</button>
+          </div>
+        </div>
+
+        <div class="card__footer">
+          <button class="power-btn power-btn--light-off" id="lightOffBtn">
+            <span class="power-btn__icon">⏻</span>
+            <span class="power-btn__text">消灯</span>
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <div class="status-indicator">
+        <span class="status-indicator__dot" id="syncIndicatorDot"></span>
+        <span class="status-indicator__text" id="syncStatus">同期完了</span>
       </div>
-      <p class="bulb__label" id="bulbLabel">状態を取得中…</p>
-    </section>
-
-    <button class="toggle-btn" id="toggleBtn" disabled>
-      <span id="toggleBtnLabel">LOADING</span>
-    </button>
-
-    <footer class="panel__footer">
-      <dl class="status-grid">
-        <div>
-          <dt>THING</dt>
-          <dd id="thingLabel">led-device-01</dd>
-        </div>
-        <div>
-          <dt>LAST SYNC</dt>
-          <dd id="lastSync">—</dd>
-        </div>
-      </dl>
-      <p class="error-message" id="errorMessage" role="alert"></p>
+      <div class="sync-info">
+        <span class="sync-info__label">LAST SYNC</span>
+        <span class="sync-info__value" id="lastSync">—</span>
+      </div>
+      <p class="error-banner" id="errorMessage" role="alert"></p>
     </footer>
-  </main>
+  </div>
 
   <script src="config.js"></script>
   <script src="app.js"></script>

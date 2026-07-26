@@ -3,6 +3,12 @@ info:
   title: led-iot-api
   version: "1.0"
 
+
+x-amazon-apigateway-cors:
+  AllowOrigins: "'*'"
+  AllowMethods: "'GET,POST,OPTIONS'"
+  AllowHeaders: "'Content-Type,X-Api-Key,x-api-key'"
+
 # APIキー必須であることを示すセキュリティスキーム
 # （実際のAPIキー・使用量プランのリソース自体はTerraformで作成する）
 components:
@@ -13,31 +19,48 @@ components:
       in: header
 
 paths:
-  /led/state:
+  /appliances/state:
     get:
-      summary: LED状態取得
+      summary: 機器状態取得
       security:
         - api_key: []
       responses:
         "200":
-          description: 現在のLED状態
+          description: 現在の各機器の状態
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  state:
-                    type: string
-                    enum: ["ON", "OFF"]
+                  aircon:
+                    type: object
+                    properties:
+                      power:
+                        type: string
+                        enum: ["ON", "OFF"]
+                      temp:
+                        type: integer
+                      mode:
+                        type: string
+                        enum: ["COOL", "HEAT", "DRY", "FAN"]
+                  light:
+                    type: object
+                    properties:
+                      power:
+                        type: string
+                        enum: ["ON", "OFF"]
+                      mode:
+                        type: string
+                        enum: ["FULL", "WARM", "ECO"]
       x-amazon-apigateway-integration:
         type: aws_proxy
         httpMethod: POST
         payloadFormatVersion: "1.0"
         uri:
-          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetLedStateFunction.Arn}/invocations"
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetApplianceStateFunction.Arn}/invocations"
 
     post:
-      summary: LED状態更新
+      summary: 機器状態更新
       security:
         - api_key: []
       requestBody:
@@ -46,25 +69,59 @@ paths:
           application/json:
             schema:
               type: object
-              required: ["state"]
               properties:
-                state:
-                  type: string
-                  enum: ["ON", "OFF"]
+                aircon:
+                  type: object
+                  properties:
+                    power:
+                      type: string
+                      enum: ["ON", "OFF"]
+                    temp:
+                      type: integer
+                    mode:
+                      type: string
+                      enum: ["COOL", "HEAT", "DRY", "FAN"]
+                light:
+                  type: object
+                  properties:
+                    power:
+                      type: string
+                      enum: ["ON", "OFF"]
+                    mode:
+                      type: string
+                      enum: ["FULL", "WARM", "ECO"]
       responses:
         "200":
-          description: 更新後のLED状態
+          description: 更新要求後の機器状態
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  state:
-                    type: string
-                    enum: ["ON", "OFF"]
+                  aircon:
+                    type: object
+                    properties:
+                      power:
+                        type: string
+                        enum: ["ON", "OFF"]
+                      temp:
+                        type: integer
+                      mode:
+                        type: string
+                        enum: ["COOL", "HEAT", "DRY", "FAN"]
+                  light:
+                    type: object
+                    properties:
+                      power:
+                        type: string
+                        enum: ["ON", "OFF"]
+                      mode:
+                        type: string
+                        enum: ["FULL", "WARM", "ECO"]
       x-amazon-apigateway-integration:
         type: aws_proxy
         httpMethod: POST
         payloadFormatVersion: "1.0"
         uri:
-          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetLedStateFunction.Arn}/invocations"
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SetApplianceStateFunction.Arn}/invocations"
+

@@ -1,201 +1,537 @@
 :root {
-  --bg: #0f1115;
-  --panel: #161a21;
-  --panel-border: #262c37;
-  --text-primary: #e7ebf3;
-  --text-dim: #7c8598;
-  --amber: #ffb454;
-  --led-off: #3a4152;
-  --led-on: #3ddc84;
-  --led-on-glow: rgba(61, 220, 132, 0.55);
-  --danger: #ff6b6b;
-  --font-display: 'JetBrains Mono', 'Courier New', monospace;
-  --font-body: 'Inter', system-ui, sans-serif;
+  --bg-dark: #090b10;
+  --bg-light: #151a26;
+  --card-bg: rgba(22, 28, 41, 0.65);
+  --card-border: rgba(255, 255, 255, 0.06);
+  --card-border-active: rgba(255, 255, 255, 0.15);
+  --text-primary: #f0f4f9;
+  --text-secondary: #8a96ab;
+  
+  --color-cool: #3b82f6;
+  --color-cool-glow: rgba(59, 130, 246, 0.35);
+  --color-heat: #ef4444;
+  --color-heat-glow: rgba(239, 68, 68, 0.35);
+  --color-dry: #a855f7;
+  --color-fan: #10b981;
+  
+  --color-light-on: #eab308;
+  --color-light-glow: rgba(234, 179, 8, 0.3);
+  
+  --font-display: 'Outfit', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 }
 
 * {
   box-sizing: border-box;
-}
-
-html, body {
-  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  margin: 0;
-  background: radial-gradient(circle at 50% 0%, #1a1f28 0%, var(--bg) 60%);
+  min-height: 100vh;
+  background: radial-gradient(circle at 50% 30%, var(--bg-light) 0%, var(--bg-dark) 100%);
   color: var(--text-primary);
-  font-family: var(--font-body);
+  font-family: var(--font-display);
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: 24px;
+  align-items: center;
+  padding: 20px;
 }
 
-.panel {
+.container {
   width: 100%;
-  max-width: 360px;
-  background: var(--panel);
-  border: 1px solid var(--panel-border);
-  border-radius: 20px;
-  padding: 32px 28px 24px;
-  box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.6);
-}
-
-.panel__header {
-  text-align: center;
-  margin-bottom: 28px;
-}
-
-.panel__eyebrow {
-  display: block;
-  font-family: var(--font-display);
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  color: var(--text-dim);
-  margin-bottom: 6px;
-}
-
-.panel__title {
-  font-family: var(--font-display);
-  font-size: 28px;
-  font-weight: 700;
-  margin: 0;
-  letter-spacing: 0.04em;
-}
-
-.bulb-stage {
+  max-width: 480px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 28px;
+  gap: 24px;
 }
 
-.bulb {
+/* ヘッダー */
+.app-header {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.app-header__subtitle {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  color: var(--text-secondary);
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.app-header__title {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-top: 4px;
+  background: linear-gradient(135deg, #fff 0%, var(--text-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ダッシュボードレイアウト */
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* グラスモフィズムカード */
+.card {
   position: relative;
-  width: 96px;
-  height: 96px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  padding: 24px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.card__glow {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  right: -50%;
+  bottom: -50%;
+  background: radial-gradient(circle, transparent 50%, transparent 100%);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 0;
+  transition: opacity 0.5s ease, background 0.5s ease;
+}
+
+/* カードの状態別グロー効果 */
+.card--aircon[data-power="ON"][data-mode="COOL"] .card__glow {
+  background: radial-gradient(circle, var(--color-cool-glow) 0%, transparent 65%);
+  opacity: 1;
+}
+
+.card--aircon[data-power="ON"][data-mode="HEAT"] .card__glow {
+  background: radial-gradient(circle, var(--color-heat-glow) 0%, transparent 65%);
+  opacity: 1;
+}
+
+.card--aircon[data-power="ON"][data-mode="DRY"] .card__glow {
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.25) 0%, transparent 65%);
+  opacity: 1;
+}
+
+.card--aircon[data-power="ON"][data-mode="FAN"] .card__glow {
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, transparent 65%);
+  opacity: 1;
+}
+
+.card--light[data-power="ON"] .card__glow {
+  background: radial-gradient(circle, var(--color-light-glow) 0%, transparent 65%);
+  opacity: 1;
+}
+
+.card--light[data-power="ON"] {
+  border-color: rgba(234, 179, 8, 0.25);
+}
+
+.card--aircon[data-power="ON"][data-mode="COOL"] {
+  border-color: rgba(59, 130, 246, 0.3);
+}
+.card--aircon[data-power="ON"][data-mode="HEAT"] {
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+/* カードコンテンツ */
+.card__header, .card__body, .card__footer {
+  position: relative;
+  z-index: 1;
+}
+
+.card__header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.card__icon {
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--text-secondary);
+  transition: color 0.3s ease, background 0.3s ease;
 }
 
-.bulb__core {
-  position: relative;
-  z-index: 2;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: var(--led-off);
-  box-shadow: inset 0 -6px 10px rgba(0, 0, 0, 0.35), inset 0 4px 8px rgba(255, 255, 255, 0.05);
-  transition: background 0.3s ease;
-}
-
-.bulb__glow {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--led-on-glow) 0%, transparent 70%);
-  opacity: 0;
-  transform: scale(0.6);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.bulb[data-state="on"] .bulb__core {
-  background: var(--led-on);
-  box-shadow: inset 0 -4px 10px rgba(0, 0, 0, 0.2), 0 0 24px var(--led-on-glow);
-}
-
-.bulb[data-state="on"] .bulb__glow {
-  opacity: 1;
-  transform: scale(1);
-  animation: pulse 2.4s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 0.7; transform: scale(0.95); }
-  50% { opacity: 1; transform: scale(1.1); }
-}
-
-.bulb__label {
-  font-family: var(--font-display);
-  font-size: 13px;
-  letter-spacing: 0.08em;
-  color: var(--text-dim);
-  margin: 0;
-}
-
-.toggle-btn {
-  display: block;
-  width: 100%;
-  padding: 16px;
-  border-radius: 12px;
-  border: 1px solid var(--panel-border);
-  background: #1d222c;
+.card--aircon[data-power="ON"] .card__icon {
   color: var(--text-primary);
-  font-family: var(--font-display);
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  background: rgba(255, 255, 255, 0.08);
+}
+.card--aircon[data-power="ON"][data-mode="COOL"] .card__icon { color: var(--color-cool); }
+.card--aircon[data-power="ON"][data-mode="HEAT"] .card__icon { color: var(--color-heat); }
+.card--aircon[data-power="ON"][data-mode="DRY"] .card__icon { color: var(--color-dry); }
+.card--aircon[data-power="ON"][data-mode="FAN"] .card__icon { color: var(--color-fan); }
+
+.card--light[data-power="ON"] .card__icon {
+  color: var(--color-light-on);
+  background: rgba(234, 179, 8, 0.1);
+  border-color: rgba(234, 179, 8, 0.2);
+}
+
+.card__title-group {
+  flex-grow: 1;
+}
+
+.card__title {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.card__subtitle {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+  display: block;
+}
+
+/* 温度表示 */
+.temp-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  margin: 12px 0 24px;
+}
+
+.temp-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid var(--card-border-active);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary);
+  font-size: 20px;
+  font-weight: 300;
   cursor: pointer;
-  transition: border-color 0.2s ease, background 0.2s ease, transform 0.05s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.toggle-btn:hover:not(:disabled) {
-  border-color: var(--amber);
+.temp-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+  transform: scale(1.05);
 }
 
-.toggle-btn:active:not(:disabled) {
-  transform: scale(0.98);
+.temp-btn:active:not(:disabled) {
+  transform: scale(0.95);
 }
 
-.toggle-btn:disabled {
-  opacity: 0.5;
+.temp-btn:disabled {
+  opacity: 0.2;
   cursor: not-allowed;
 }
 
-.toggle-btn:focus-visible {
-  outline: 2px solid var(--amber);
-  outline-offset: 2px;
+.temp-value-wrapper {
+  display: flex;
+  align-items: baseline;
 }
 
-.panel__footer {
-  margin-top: 24px;
-  border-top: 1px solid var(--panel-border);
-  padding-top: 16px;
-}
-
-.status-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin: 0;
-}
-
-.status-grid dt {
+.temp-value {
+  font-size: 56px;
+  font-weight: 300;
+  letter-spacing: -0.04em;
+  line-height: 1;
   font-family: var(--font-display);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  color: var(--text-dim);
 }
 
-.status-grid dd {
-  margin: 2px 0 0;
+.temp-unit {
+  font-size: 20px;
+  color: var(--text-secondary);
+  margin-left: 4px;
+}
+
+/* モードセレクタ */
+.mode-selector {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 4px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.mode-btn {
+  padding: 10px 0;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-display);
   font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mode-btn:hover:not(:disabled) {
   color: var(--text-primary);
-  word-break: break-all;
 }
 
-.error-message {
-  margin: 12px 0 0;
+/* 各モード選択時のスタイル */
+.card[data-power="ON"] .mode-btn[data-mode="COOL"].active {
+  background: var(--color-cool);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+.card[data-power="ON"] .mode-btn[data-mode="HEAT"].active {
+  background: var(--color-heat);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+.card[data-power="ON"] .mode-btn[data-mode="DRY"].active {
+  background: var(--color-dry);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+}
+.card[data-power="ON"] .mode-btn[data-mode="FAN"].active {
+  background: var(--color-fan);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* 電源ボタン */
+.power-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid var(--card-border-active);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  margin-top: 20px;
+}
+
+.power-btn__icon {
+  font-size: 16px;
+}
+
+.power-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.power-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.card--aircon[data-power="ON"] .power-btn {
+  background: #fff;
+  color: #000;
+  border-color: #fff;
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.15);
+}
+
+/* ライトコントロールグリッド (Panasonic) */
+.light-control-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 12px 0 4px;
+}
+
+.light-btn {
+  padding: 24px 8px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text-secondary);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.light-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Panasonicライト動作状態のアクティブデザイン */
+.card--light[data-power="ON"][data-mode="FULL"] .light-btn--full {
+  background: linear-gradient(135deg, #fef08a 0%, #eab308 100%);
+  color: #000;
+  border-color: #fef08a;
+  box-shadow: 0 8px 24px rgba(234, 179, 8, 0.3);
+}
+
+.card--light[data-power="ON"][data-mode="WARM"] .light-btn--warm {
+  background: linear-gradient(135deg, #fed7aa 0%, #ea580c 100%);
+  color: #fff;
+  border-color: #fed7aa;
+  box-shadow: 0 8px 24px rgba(234, 88, 12, 0.3);
+}
+
+.card--light[data-power="ON"][data-mode="ECO"] .light-btn--eco {
+  background: linear-gradient(135deg, #bbf7d0 0%, #16a34a 100%);
+  color: #fff;
+  border-color: #bbf7d0;
+  box-shadow: 0 8px 24px rgba(22, 163, 74, 0.25);
+}
+
+/* 消灯ボタン（ライトカード専用） */
+.power-btn--light-off {
+  border-color: rgba(239, 68, 68, 0.15);
+  background: rgba(239, 68, 68, 0.03);
+  color: #fca5a5;
+}
+
+.power-btn--light-off:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.card--light[data-power="OFF"] .power-btn--light-off {
+  opacity: 0.4;
+  border-color: var(--card-border);
+  background: rgba(255, 255, 255, 0.01);
+  color: var(--text-secondary);
+}
+
+/* スピナーアニメーション */
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-top-color: var(--text-primary);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.loading-spinner.active {
+  opacity: 1;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* フッター */
+.app-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.02);
+  padding: 16px 20px;
+  border-radius: 18px;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-indicator__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #10b981;
+  box-shadow: 0 0 8px #10b981;
+}
+
+.status-indicator__dot.syncing {
+  background-color: #f59e0b;
+  box-shadow: 0 0 8px #f59e0b;
+  animation: pulse-sync 1.2s infinite ease-in-out;
+}
+
+.status-indicator__dot.error {
+  background-color: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
+}
+
+@keyframes pulse-sync {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+.status-indicator__text {
   font-size: 12px;
-  color: var(--danger);
-  min-height: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .bulb[data-state="on"] .bulb__glow {
-    animation: none;
+.sync-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.sync-info__label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+}
+
+.sync-info__value {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-primary);
+  margin-top: 1px;
+}
+
+.error-banner {
+  width: 100%;
+  font-size: 12px;
+  color: #f87171;
+  text-align: center;
+  min-height: 0;
+  transition: all 0.2s ease;
+}
+
+/* アプリが非アクティブな時のUI制御 */
+.card:disabled, button:disabled {
+  pointer-events: none;
+}
+
+@media (max-width: 400px) {
+  body {
+    padding: 12px;
+  }
+  .card {
+    padding: 18px;
+  }
+  .temp-value {
+    font-size: 48px;
   }
 }
