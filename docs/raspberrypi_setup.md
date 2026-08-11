@@ -16,7 +16,7 @@
 | **d. 必要パッケージ** | `sudo apt install -y python3 python3-pip python3-venv git pigpio` | Python 環境と `pigpio` デーモン。 |
 | **e. pigpio デーモン** | `sudo systemctl enable pigpiod && sudo systemctl start pigpiod` | 0 V から 3.3 V の GPIO を PWM で制御可能にします。 |
 | **f. 電源** | 5 V / ≥1 A の安定電源（USB‑C/マイクロ USB）を使用。Zero W は **電流余裕が少ない** ので、外部電源（UPS/HAT）で LED ドライブ回路を供給すると安全です。 |
-| **g. ディレクトリ配置** | `~/led_iot_edge/` に本リポジトリの `shadow_agent.py` と `ir_control.py` を配置し、仮想環境を作成して `awsiotsdk` をインストール。 | 後述の手順参照。 |
+| **g. ディレクトリ配置** | `~/led_iot_edge/` に本リポジトリの `shadow_agent.py` と `irrp.py` を配置し、仮想環境を作成して `awsiotsdk` をインストール。 | 後述の手順参照。 |
 
 ---
 
@@ -49,21 +49,45 @@ flowchart LR
 - **コレクタは GPIO ではなく LED のカソードに接続**します。トランジスタはスイッチとして機能し、GPIO がハイになるとベース電流が流れ、コレクタ‑エミッタ間が導通して LED が点灯します。
 - **GPIO 17 は 3.3 V 出力**です。ベースに流す電流は 1 kΩ で約 3 mA 程度に抑えると安全です。
 - **Zero W の GPIO ピンは 3.3 V しか出せません**が、トランジスタがスイッチングを行うため、LED へは外部 5 V 電源を使用しても問題ありません。
-- **pigpio** の PWM 周波数は `38000` Hz（38 kHz）に設定し、`set_PWM_dutycycle` で約 33 % のデューティ比を使用します（実装は `ir_control.py` 参照）。
+- **pigpio** を用いて `irrp.py` が 38kHz キャリアを生成し、送信を行います。
 
 ---
 
 ## 📦 3️⃣ 実装コードの簡易説明
-- **`ir_control.py`**: `pigpio` を利用して NEC 形式の赤外線パルスを生成し、`transmit_raw(pulses)` が実際に GPIO 17 へ波形を書き込みます。
-- **`shadow_agent.py`**: AWS IoT デバイスシャドウから `delta` メッセージを受信し、`transmit_ir(payload)` を呼び出して上記回路に指示を送ります。
+エッジ側では pigpio 公式の `irrp.py` を利用して赤外線信号の学習および送信を行います。
+詳細は公式ドキュメントを参照してください:
+- https://abyz.me.uk/rpi/pigpio/index.html
+- https://abyz.me.uk/rpi/pigpio/examples.html#Python%20code
 
-> **Zero W での注意点**: `pigpio` はデフォルトで `GPIO` の **PWM 周波数** が 800 Hz ですが、`pi.set_PWM_frequency(IR_GPIO, 38000)` により 38 kHz に上書きします。Zero W のハードウェアはこの周波数に対応していますが、**電源が不安定だと波形が歪む**ことがあるので、外部 5 V 電源と十分なデカップリング（100 µF コンデンサ）を推奨します。
+### 赤外線の学習（記録）例
+```bash
+python3 irrp.py -r -g18 -f codes.json light:on --no-confirm --post 130
+```
+- `-r`: 記録モード
+- `-g18`: 受信ピン (GPIO 18 / 実際の配線に合わせて変更)
+- `-f codes.json`: 記録先のファイル
+- `light:on`: 記録するキー名
+- `--no-confirm`: 確認の手間を省く
+- `--post 130`: 記録後の遅延（ミリ秒）
+
+### 赤外線の送信（実行）例
+```bash
+python3 irrp.py -p -g22 -f codes.json light:on
+```
+- `-p`: 再生モード
+- `-g22`: 送信ピン (GPIO 22 / 実際の配線に合わせて変更)
+- `-f codes.json`: 読み込むファイル
+- `light:on`: 再生するキー名
+
+- **`shadow_agent.py`**: AWS IoT デバイスシャドウから `delta` メッセージを受信し、内部から `irrp.py` の送信コマンドを実行する等して上記回路に指示を送ります。
+
+> **Zero W での注意点**: `pigpio` を使ったソフトウェア PWM や波形生成は電源が不安定だと波形が歪むことがあるので、外部 5 V 電源と十分なデカップリング（100 µF コンデンサ）を推奨します。
 
 ---
 
 ## ✅ まとめ
 - **Zero W でも同じ GPIO 配線**で動作しますが、電源供給方式が異なる点に留意してください。
 - **トランジスタのコレクタは LED カソード**に接続し、GPIO 17 はベース側に 1 kΩ 抵抗で接続します。
-- `pigpio` デーモンと 38 kHz PWM 設定が正しく行われていれば、`shadow_agent.py` → `ir_control.py` → ハードウェア の流れで赤外線送信が可能です。
+- `pigpio` デーモンが正しく動作していれば、`shadow_agent.py` → `irrp.py` → ハードウェア の流れで赤外線送信が可能です。
 
 質問や配線図の画像が必要であれば、遠慮なくお知らせください！

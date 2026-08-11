@@ -57,6 +57,9 @@ led_iot/
 │   ├── style.css
 │   ├── app.js
 │   └── config.example.js    API接続情報テンプレート
+├── edge/
+│   ├── irrp.py              赤外線送受信スクリプト(pigpio公式)
+│   └── codes.json           記録された赤外線データ
 └── infra/
     └── terraform/           IoT Core・APIキー/使用量プラン・フロントエンド配信(IaC)
 ```
