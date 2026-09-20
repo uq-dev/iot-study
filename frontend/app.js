@@ -102,8 +102,8 @@
       
     // パナソニック個別ボタンの有効無効
     lightFullBtn.disabled = false;
-    lightWarmBtn.disabled = false;
-    lightEcoBtn.disabled = false;
+    lightWarmBtn.disabled = true;
+    lightEcoBtn.disabled = true;
     lightOffBtn.disabled = lt.power === "OFF";
   }
 
