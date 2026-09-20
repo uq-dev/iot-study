@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module irrp</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>irrp</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:w%3A%5Cdevelop%5Cgit%5Caws%5Cled_iot%5Cedge%5Cirrp.py">w:\develop\git\aws\led_iot\edge\irrp.py</a></font></td></tr></table>
+    <p><tt>A&nbsp;utility&nbsp;to&nbsp;record&nbsp;and&nbsp;then&nbsp;playback&nbsp;IR&nbsp;remote&nbsp;control&nbsp;codes.<br>
+&nbsp;<br>
+To&nbsp;record&nbsp;use<br>
+&nbsp;<br>
+./irrp.py&nbsp;-r&nbsp;-g4&nbsp;-fcodes&nbsp;1&nbsp;2&nbsp;3&nbsp;4&nbsp;5&nbsp;6<br>
+&nbsp;<br>
+where<br>
+&nbsp;<br>
+-r&nbsp;record<br>
+-g&nbsp;the&nbsp;GPIO&nbsp;connected&nbsp;to&nbsp;the&nbsp;IR&nbsp;receiver<br>
+-f&nbsp;the&nbsp;file&nbsp;to&nbsp;store&nbsp;the&nbsp;codes<br>
+&nbsp;<br>
+and&nbsp;1&nbsp;2&nbsp;3&nbsp;4&nbsp;5&nbsp;6&nbsp;is&nbsp;a&nbsp;list&nbsp;of&nbsp;codes&nbsp;to&nbsp;record.<br>
+&nbsp;<br>
+To&nbsp;playback&nbsp;use<br>
+&nbsp;<br>
+./irrp.py&nbsp;-p&nbsp;-g17&nbsp;-fcodes&nbsp;2&nbsp;3&nbsp;4<br>
+&nbsp;<br>
+where<br>
+&nbsp;<br>
+-p&nbsp;playback<br>
+-g&nbsp;the&nbsp;GPIO&nbsp;connected&nbsp;to&nbsp;the&nbsp;IR&nbsp;transmitter<br>
+-f&nbsp;the&nbsp;file&nbsp;storing&nbsp;the&nbsp;codes&nbsp;to&nbsp;transmit<br>
+&nbsp;<br>
+and&nbsp;2&nbsp;3&nbsp;4&nbsp;is&nbsp;a&nbsp;list&nbsp;of&nbsp;codes&nbsp;to&nbsp;transmit.<br>
+&nbsp;<br>
+OPTIONS<br>
+&nbsp;<br>
+-r&nbsp;record<br>
+-p&nbsp;playback<br>
+-g&nbsp;GPIO&nbsp;(receiver&nbsp;for&nbsp;record,&nbsp;transmitter&nbsp;for&nbsp;playback)<br>
+-f&nbsp;file<br>
+&nbsp;<br>
+id1&nbsp;id2&nbsp;id3&nbsp;list&nbsp;of&nbsp;ids&nbsp;to&nbsp;record&nbsp;or&nbsp;transmit<br>
+&nbsp;<br>
+RECORD<br>
+&nbsp;<br>
+--glitch&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ignore&nbsp;edges&nbsp;shorter&nbsp;than&nbsp;glitch&nbsp;microseconds,&nbsp;default&nbsp;100&nbsp;us<br>
+--post&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expect&nbsp;post&nbsp;milliseconds&nbsp;of&nbsp;silence&nbsp;after&nbsp;code,&nbsp;default&nbsp;15&nbsp;ms<br>
+--pre&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expect&nbsp;pre&nbsp;milliseconds&nbsp;of&nbsp;silence&nbsp;before&nbsp;code,&nbsp;default&nbsp;200&nbsp;ms<br>
+--short&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reject&nbsp;codes&nbsp;with&nbsp;less&nbsp;than&nbsp;short&nbsp;pulses,&nbsp;default&nbsp;10<br>
+--tolerance&nbsp;&nbsp;consider&nbsp;pulses&nbsp;the&nbsp;same&nbsp;if&nbsp;within&nbsp;tolerance&nbsp;percent,&nbsp;default&nbsp;15<br>
+--no-confirm&nbsp;don't&nbsp;require&nbsp;a&nbsp;code&nbsp;to&nbsp;be&nbsp;repeated&nbsp;during&nbsp;record<br>
+&nbsp;<br>
+TRANSMIT<br>
+&nbsp;<br>
+--freq&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IR&nbsp;carrier&nbsp;frequency,&nbsp;default&nbsp;38&nbsp;kHz<br>
+--gap&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gap&nbsp;in&nbsp;milliseconds&nbsp;between&nbsp;transmitted&nbsp;codes,&nbsp;default&nbsp;100&nbsp;ms</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="argparse.html">argparse</a><br>
+</td><td width="25%" valign=top><a href="json.html">json</a><br>
+</td><td width="25%" valign=top><a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="time.html">time</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-backup"><strong>backup</strong></a>(f)</dt><dd><tt>f&nbsp;-&gt;&nbsp;f.bak&nbsp;-&gt;&nbsp;f.bak1&nbsp;-&gt;&nbsp;f.bak2</tt></dd></dl>
+ <dl><dt><a name="-carrier"><strong>carrier</strong></a>(gpio, frequency, micros)</dt><dd><tt>Generate&nbsp;carrier&nbsp;square&nbsp;wave.</tt></dd></dl>
+ <dl><dt><a name="-cbf"><strong>cbf</strong></a>(gpio, level, tick)</dt></dl>
+ <dl><dt><a name="-compare"><strong>compare</strong></a>(p1, p2)</dt><dd><tt>Check&nbsp;that&nbsp;both&nbsp;recodings&nbsp;correspond&nbsp;in&nbsp;pulse&nbsp;length&nbsp;to&nbsp;within<br>
+TOLERANCE%.&nbsp;&nbsp;If&nbsp;they&nbsp;do&nbsp;average&nbsp;the&nbsp;two&nbsp;recordings&nbsp;pulse&nbsp;lengths.<br>
+&nbsp;<br>
+Input<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;M&nbsp;&nbsp;&nbsp;&nbsp;S&nbsp;&nbsp;&nbsp;M&nbsp;&nbsp;&nbsp;S&nbsp;&nbsp;&nbsp;M&nbsp;&nbsp;&nbsp;S&nbsp;&nbsp;&nbsp;M&nbsp;&nbsp;&nbsp;&nbsp;S&nbsp;&nbsp;&nbsp;M&nbsp;&nbsp;&nbsp;&nbsp;S&nbsp;&nbsp;&nbsp;M<br>
+1:&nbsp;9000&nbsp;4500&nbsp;600&nbsp;560&nbsp;600&nbsp;560&nbsp;600&nbsp;1700&nbsp;600&nbsp;1700&nbsp;600<br>
+2:&nbsp;9020&nbsp;4570&nbsp;590&nbsp;550&nbsp;590&nbsp;550&nbsp;590&nbsp;1640&nbsp;590&nbsp;1640&nbsp;590<br>
+&nbsp;<br>
+Output<br>
+&nbsp;<br>
+A:&nbsp;9010&nbsp;4535&nbsp;595&nbsp;555&nbsp;595&nbsp;555&nbsp;595&nbsp;1670&nbsp;595&nbsp;1670&nbsp;595</tt></dd></dl>
+ <dl><dt><a name="-end_of_code"><strong>end_of_code</strong></a>()</dt></dl>
+ <dl><dt><a name="-normalise"><strong>normalise</strong></a>(c)</dt><dd><tt>Typically&nbsp;a&nbsp;code&nbsp;will&nbsp;be&nbsp;made&nbsp;up&nbsp;of&nbsp;two&nbsp;or&nbsp;three&nbsp;distinct<br>
+marks&nbsp;(carrier)&nbsp;and&nbsp;spaces&nbsp;(no&nbsp;carrier)&nbsp;of&nbsp;different&nbsp;lengths.<br>
+&nbsp;<br>
+Because&nbsp;of&nbsp;transmission&nbsp;and&nbsp;reception&nbsp;errors&nbsp;those&nbsp;pulses<br>
+which&nbsp;should&nbsp;all&nbsp;be&nbsp;x&nbsp;micros&nbsp;long&nbsp;will&nbsp;have&nbsp;a&nbsp;variance&nbsp;around&nbsp;x.<br>
+&nbsp;<br>
+This&nbsp;function&nbsp;identifies&nbsp;the&nbsp;distinct&nbsp;pulses&nbsp;and&nbsp;takes&nbsp;the<br>
+average&nbsp;of&nbsp;the&nbsp;lengths&nbsp;making&nbsp;up&nbsp;each&nbsp;distinct&nbsp;pulse.&nbsp;&nbsp;Marks<br>
+and&nbsp;spaces&nbsp;are&nbsp;processed&nbsp;separately.<br>
+&nbsp;<br>
+This&nbsp;makes&nbsp;the&nbsp;eventual&nbsp;generation&nbsp;of&nbsp;waves&nbsp;much&nbsp;more&nbsp;efficient.<br>
+&nbsp;<br>
+Input<br>
+&nbsp;<br>
+&nbsp;&nbsp;M&nbsp;&nbsp;&nbsp;&nbsp;S&nbsp;&nbsp;&nbsp;M&nbsp;&nbsp;&nbsp;S&nbsp;&nbsp;&nbsp;M&nbsp;&nbsp;&nbsp;S&nbsp;&nbsp;&nbsp;M&nbsp;&nbsp;&nbsp;&nbsp;S&nbsp;&nbsp;&nbsp;M&nbsp;&nbsp;&nbsp;&nbsp;S&nbsp;&nbsp;&nbsp;M<br>
+9000&nbsp;4500&nbsp;600&nbsp;540&nbsp;620&nbsp;560&nbsp;590&nbsp;1660&nbsp;620&nbsp;1690&nbsp;615<br>
+&nbsp;<br>
+Distinct&nbsp;marks<br>
+&nbsp;<br>
+9000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;average&nbsp;9000<br>
+600&nbsp;620&nbsp;590&nbsp;620&nbsp;615&nbsp;average&nbsp;&nbsp;609<br>
+&nbsp;<br>
+Distinct&nbsp;spaces<br>
+&nbsp;<br>
+4500&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;average&nbsp;4500<br>
+540&nbsp;560&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;average&nbsp;&nbsp;550<br>
+1660&nbsp;1690&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;average&nbsp;1675<br>
+&nbsp;<br>
+Output<br>
+&nbsp;<br>
+&nbsp;&nbsp;M&nbsp;&nbsp;&nbsp;&nbsp;S&nbsp;&nbsp;&nbsp;M&nbsp;&nbsp;&nbsp;S&nbsp;&nbsp;&nbsp;M&nbsp;&nbsp;&nbsp;S&nbsp;&nbsp;&nbsp;M&nbsp;&nbsp;&nbsp;&nbsp;S&nbsp;&nbsp;&nbsp;M&nbsp;&nbsp;&nbsp;&nbsp;S&nbsp;&nbsp;&nbsp;M<br>
+9000&nbsp;4500&nbsp;609&nbsp;550&nbsp;609&nbsp;550&nbsp;609&nbsp;1675&nbsp;609&nbsp;1675&nbsp;609</tt></dd></dl>
+ <dl><dt><a name="-tidy"><strong>tidy</strong></a>(records)</dt></dl>
+ <dl><dt><a name="-tidy_mark_space"><strong>tidy_mark_space</strong></a>(records, base)</dt></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>CONFIRM</strong> = True<br>
+<strong>FILE</strong> = 'codes.json'<br>
+<strong>FREQ</strong> = 38.0<br>
+<strong>GAP_MS</strong> = 100<br>
+<strong>GAP_S</strong> = 0.1<br>
+<strong>GLITCH</strong> = 100<br>
+<strong>GPIO</strong> = 17<br>
+<strong>NO_CONFIRM</strong> = False<br>
+<strong>POST_MS</strong> = 15<br>
+<strong>POST_US</strong> = 15000<br>
+<strong>PRE_MS</strong> = 200<br>
+<strong>PRE_US</strong> = 200000<br>
+<strong>SHORT</strong> = 10<br>
+<strong>TOLERANCE</strong> = 15<br>
+<strong>TOLER_MAX</strong> = 1.15<br>
+<strong>TOLER_MIN</strong> = 0.85<br>
+<strong>VERBOSE</strong> = False<br>
+<strong>arg</strong> = 'dummy_id'<br>
+<strong>args</strong> = Namespace(play=True, record=False, gpio=17, file...0, tolerance=15, verbose=False, no_confirm=False)<br>
+<strong>code</strong> = []<br>
+<strong>emit_time</strong> = 1786810894.1683052<br>
+<strong>f</strong> = &lt;_io.TextIOWrapper name='codes.json' mode='r' encoding='cp932'&gt;<br>
+<strong>fetching_code</strong> = False<br>
+<strong>g</strong> = &lt;argparse._MutuallyExclusiveGroup object&gt;<br>
+<strong>in_code</strong> = False<br>
+<strong>last_tick</strong> = 0<br>
+<strong>p</strong> = ArgumentParser(prog='irrp.py', usage=None, descr...atter'&gt;, conflict_handler='error', add_help=True)<br>
+<strong>pi</strong> = &lt;MagicMock name='mock.pi()' id='2289986730640'&gt;<br>
+<strong>pigpio</strong> = &lt;MagicMock id='2289950821056'&gt;<br>
+<strong>records</strong> = {'light:off': [726, 118, 264, 1232, 144, 1232, 187, 1232, 144, 9815, 187, 3016, 144, 1232, 187, 455, 187, 9815, 264, 347, ...], 'light:on': [3446, 1581, 543, 347, 543, 347, 543, 1232, 543, 1232, 543, 347, 543, 1232, 543, 347, 543, 347, 543, 347, ...], 'rayair:off': [543, 870, 543, 1232, 445, 524, 213, 870, 543, 8187, 144, 3921, 114, 5962, 114, 9815, 187, 870, 187, 3016, ...], 'rayair:on': [2822, 219, 648, 175, 1048, 219, 5433, 175, 3446, 347, 9102, 175, 1964, 147, 9102, 219, 6753, 219, 1365, 118, ...]}</td></tr></table>
+</body></html>
